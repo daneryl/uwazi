@@ -87,12 +87,28 @@ describe('Search routes', () => {
         .get('/api/search/lookupaggregation')
         .query({ query: JSON.stringify(query), searchTerm: 'Bat', property: 'relationship' });
 
-      const options = res.body.options;
+      const { options } = res.body;
 
       expect(options.length).toBe(1);
       expect(options[0].value).toBeDefined();
       expect(options[0].label).toBeDefined();
       expect(options[0].results).toBeDefined();
+    });
+  });
+
+  describe('GET /search/count', () => {
+    it('should return the count matching the query passed', async () => {
+      let res = await request(app)
+        .get('/api/search/count')
+        .query({});
+
+      expect(res.body.data).toBe(13);
+
+      res = await request(app)
+        .get('/api/search/count')
+        .query({ searchTerm: 'Batman' });
+
+      expect(res.body.data).toBe(2);
     });
   });
 });

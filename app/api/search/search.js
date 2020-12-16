@@ -632,6 +632,22 @@ const instanceSearch = elasticIndex => ({
       });
   },
 
+  async count(query, language, user) {
+    const resources = await Promise.all([templatesModel.get(), dictionariesModel.get()]);
+    const [templates, dictionaries] = resources;
+    const queryBuilder = await buildQuery(query, language, user, resources);
+    if (query.geolocation) {
+      searchGeolocation(queryBuilder, templates);
+    }
+
+    const response = await elastic.count({
+      index: elasticIndex || getCurrentTenantIndex(),
+      body: { query: queryBuilder.query().query },
+    });
+
+    return response.body.count;
+  },
+
   async searchGeolocations(query, language, user) {
     let results = await this.search({ ...query, geolocation: true }, language, user);
 
